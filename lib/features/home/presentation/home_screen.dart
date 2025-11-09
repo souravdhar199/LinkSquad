@@ -3,44 +3,20 @@ import 'package:flutter/material.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  List<_QuickAction> get _actions => const [
-        _QuickAction(
-          label: 'Create',
-          description: 'Host brackets in seconds',
-          icon: Icons.auto_awesome,
+  List<_SportCategory> get _sports => const [
+        _SportCategory(
+          name: 'Arena Esports',
+          icon: Icons.sports_esports,
+          accent: Color(0xFF7C84FF),
         ),
-        _QuickAction(
-          label: 'Invite',
-          description: 'Drop links to players',
-          icon: Icons.link_outlined,
-        ),
-        _QuickAction(
-          label: 'Party',
-          description: 'Schedule after-match hangs',
-          icon: Icons.celebration_outlined,
+        _SportCategory(
+          name: 'Outdoor League',
+          icon: Icons.directions_run,
+          accent: Color(0xFF4CC38A),
         ),
       ];
 
-  List<_Activity> get _activities => const [
-        _Activity(
-          title: 'Neon Knights Cup',
-          subtitle: '16 squads locked • Starts Friday 8 PM',
-          status: 'Check-in opens in 2h',
-          icon: Icons.flash_on,
-        ),
-        _Activity(
-          title: 'Link dropped in Valorant Lobby',
-          subtitle: '32 players pinged • 12 RSVPs pending',
-          status: 'Remind squad',
-          icon: Icons.campaign_outlined,
-        ),
-        _Activity(
-          title: 'After Party – Downtown HQ',
-          subtitle: 'Looped DJ Nova • 48 seats left',
-          status: 'Collect confirmations',
-          icon: Icons.music_note,
-        ),
-      ];
+  List<_Activity> get _activities => const [];
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +35,9 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     _HeroHeader(scheme: scheme, theme: theme),
                     const SizedBox(height: 24),
-                    Text('Quick actions', style: theme.textTheme.titleMedium),
+                    Text('Sports categories', style: theme.textTheme.titleMedium),
                     const SizedBox(height: 12),
-                    _QuickActionRow(actions: _actions, scheme: scheme),
+                    _SportCategoryRow(categories: _sports, scheme: scheme),
                     const SizedBox(height: 32),
                     Row(
                       children: [
@@ -79,15 +55,22 @@ class HomeScreen extends StatelessWidget {
             ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                    padding: EdgeInsets.only(bottom: index == _activities.length - 1 ? 96 : 16),
-                    child: _ActivityCard(activity: _activities[index], scheme: scheme),
-                  ),
-                  childCount: _activities.length,
-                ),
-              ),
+              sliver: _activities.isEmpty
+                  ? SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 120),
+                        child: _EmptyActivityState(scheme: scheme),
+                      ),
+                    )
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => Padding(
+                          padding: EdgeInsets.only(bottom: index == _activities.length - 1 ? 96 : 16),
+                          child: _ActivityCard(activity: _activities[index], scheme: scheme),
+                        ),
+                        childCount: _activities.length,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -105,9 +88,9 @@ class _HeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(32),
         gradient: LinearGradient(
           colors: [scheme.primary, scheme.tertiary],
           begin: Alignment.topLeft,
@@ -121,29 +104,43 @@ class _HeroHeader extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Welcome back, Captain',
-            style: theme.textTheme.titleMedium?.copyWith(color: scheme.onPrimary.withValues(alpha: 0.9)),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.onPrimary.withValues(alpha: 0.1),
+                  border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.25)),
+                ),
+              ),
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: scheme.onPrimary,
+                child: Icon(Icons.person, size: 30, color: scheme.primary),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'Launch a new tournament or keep the hype rolling with the squad.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onPrimary.withValues(alpha: 0.9)),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () {},
-            style: FilledButton.styleFrom(
-              backgroundColor: scheme.onPrimary,
-              foregroundColor: scheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome back, Captain',
+                  style: theme.textTheme.titleMedium?.copyWith(color: scheme.onPrimary.withValues(alpha: 0.9)),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Curate your next bracket or keep hype alive with the crew.',
+                  style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onPrimary.withValues(alpha: 0.85)),
+                ),
+              ],
             ),
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Create tournament'),
           ),
         ],
       ),
@@ -151,52 +148,73 @@ class _HeroHeader extends StatelessWidget {
   }
 }
 
-class _QuickActionRow extends StatelessWidget {
-  const _QuickActionRow({required this.actions, required this.scheme});
+class _SportCategoryRow extends StatelessWidget {
+  const _SportCategoryRow({required this.categories, required this.scheme});
 
-  final List<_QuickAction> actions;
+  final List<_SportCategory> categories;
   final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 140,
+      height: 150,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
-          final action = actions[index];
-          return Container(
-            width: 160,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: scheme.surface,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: scheme.primary.withValues(alpha: 0.1),
-                  child: Icon(action.icon, color: scheme.primary),
-                ),
-                const Spacer(),
-                Text(action.label, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text(
-                  action.description,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: scheme.onSurfaceVariant),
-                ),
-              ],
+          final category = categories[index];
+          return TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.9, end: 1),
+            duration: Duration(milliseconds: 700 + (index * 150)),
+            curve: Curves.easeOutBack,
+            builder: (context, value, child) => Transform.scale(scale: value, child: child),
+            child: Container(
+              width: 180,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          category.accent.withValues(alpha: 0.9),
+                          category.accent.withValues(alpha: 0.6),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: category.accent.withValues(alpha: 0.35),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Icon(category.icon, color: Colors.white),
+                  ),
+                  const Spacer(),
+                  Text(category.name, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 6),
+                  Text(
+                    index == 0 ? 'Competitive brackets' : 'Physical meetups',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
             ),
           );
         },
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemCount: actions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        itemCount: categories.length,
       ),
     );
   }
@@ -256,16 +274,71 @@ class _ActivityCard extends StatelessWidget {
   }
 }
 
-class _QuickAction {
-  const _QuickAction({
-    required this.label,
-    required this.description,
+class _EmptyActivityState extends StatelessWidget {
+  const _EmptyActivityState({required this.scheme});
+
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [scheme.primary.withValues(alpha: 0.08), scheme.tertiary.withValues(alpha: 0.08)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 86,
+            height: 86,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.primary.withValues(alpha: 0.12),
+            ),
+            child: Icon(Icons.hourglass_empty_rounded, size: 42, color: scheme.primary),
+          ),
+          const SizedBox(height: 22),
+          Text('No activity yet', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 10),
+          Text(
+            'Kick off your first tournament or drop an invite to rally the squad.',
+            style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 26),
+          OutlinedButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.auto_fix_high),
+            label: const Text('Start something'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SportCategory {
+  const _SportCategory({
+    required this.name,
     required this.icon,
+    required this.accent,
   });
 
-  final String label;
-  final String description;
+  final String name;
   final IconData icon;
+  final Color accent;
 }
 
 class _Activity {
