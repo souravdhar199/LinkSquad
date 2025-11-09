@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/routes.dart';
+import '../../event_forge/presentation/event_forge_screen.dart';
+import '../../feed/presentation/pulse_feed_screen.dart';
 import '../../home/presentation/home_screen.dart';
-import '../../parties/presentation/parties_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
-import '../../tournaments/presentation/tournaments_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -25,18 +25,18 @@ class _AppShellState extends State<AppShell> {
       builder: (_) => const HomeScreen(),
     ),
     _NavItem(
-      label: 'Tournaments',
-      icon: Icons.emoji_events_outlined,
-      initialRoute: '/tournaments',
+      label: 'Pulse',
+      icon: Icons.dynamic_feed_outlined,
+      initialRoute: '/pulse',
       navigatorKey: GlobalKey<NavigatorState>(),
-      builder: (_) => const TournamentsScreen(),
+      builder: (_) => const PulseFeedScreen(),
     ),
     _NavItem(
-      label: 'Parties',
-      icon: Icons.groups_3_outlined,
-      initialRoute: '/parties',
+      label: 'Forge',
+      icon: Icons.edit_calendar_outlined,
+      initialRoute: '/forge',
       navigatorKey: GlobalKey<NavigatorState>(),
-      builder: (_) => const PartiesScreen(),
+      builder: (_) => const EventForgeScreen(),
     ),
     _NavItem(
       label: 'Profile',
